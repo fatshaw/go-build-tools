@@ -1,0 +1,18 @@
+### Go ###
+**/vendor
+vendor
+/pgk
+/bin
+
+### IntelliJ IDEA ###
+.idea
+*.iws
+*.iml
+*.ipr
+
+### Vscode ###
+.project
+debug
+/output
+/.settings
+/.vscode
