@@ -9,11 +9,32 @@ import (
 	"path/filepath"
 	"strings"
 	"os/exec"
+	"io"
+	"text/tabwriter"
 )
 
 func main() {
 
+	example := [][2]string{
+		{
+			"go-dep-tools setup [modulename]",
+			"set up a new project with name=[modulename]",
+		},
+		{
+			"go-dep-tools init [vscode|idea]",
+			"init go environment for vscode or idea",
+		},
+		{
+			"go-dep-tools dep [modulename]",
+			"install the project's dependencies",
+		},
+	}
+
 	if len(os.Args) == 2 {
+
+		if os.Args[1] == "setup" {
+			setup(os.Args[2])
+		}
 
 		if os.Args[1] == "init" {
 
@@ -27,9 +48,36 @@ func main() {
 
 		if os.Args[1] == "dep" {
 			initDep(os.Args[2])
-
 		}
+	} else {
+		usage(os.Stdout, example)
 	}
+}
+
+func setup(moduleName string) {
+	path := fmt.Sprintf("./src/%s", moduleName)
+	mainPath := fmt.Sprintf("%s/main.go", path)
+
+	if _, err := os.Stat(path); os.IsNotExist(err) {
+		os.MkdirAll(path, 0755)
+		ioutil.WriteFile(mainPath, []byte("package main;\nfunc main()\n{\n}\n"), 0755)
+	}
+}
+
+func usage(w io.Writer, examples [][2] string) {
+	fmt.Fprintln(w, "go-dep-tools is a tool to manage go dep and init work")
+	fmt.Fprintln(w)
+	fmt.Fprintln(w, "Usage: \"go-dep-tools [command]\"")
+	fmt.Fprintln(w)
+	tw := tabwriter.NewWriter(w, 0, 0, 2, ' ', 0)
+
+	fmt.Fprintln(w)
+	fmt.Fprintln(w, "Examples:")
+	for _, example := range examples {
+		fmt.Fprintf(tw, "\t%s\t%s\n", example[0], example[1])
+	}
+	tw.Flush()
+	fmt.Fprintln(w)
 }
 
 func initDep(moduleName string) {
