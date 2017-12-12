@@ -84,10 +84,11 @@ func initDep(moduleName string) {
 
 	cmd := exec.Command(fmt.Sprintf("%s", GetCommand(moduleName)))
 
-	_, err := cmd.StdoutPipe()
+	out, err := cmd.StdoutPipe()
 	if err != nil {
 		fmt.Print(err)
 	}
+	fmt.Printf("output=%s\n", out)
 }
 
 func initIdea() {
