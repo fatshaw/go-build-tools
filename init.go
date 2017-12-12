@@ -13,21 +13,28 @@ import (
 
 func main() {
 
-	if len(os.Args) > 1 {
-		if os.Args[1] == "idea" {
-			initIdea()
+	if len(os.Args) == 2 {
+
+		if os.Args[1] == "init" {
+
+			if os.Args[2] == "idea" {
+				initIdea()
+			}
+			if os.Args[2] == "vscode" {
+				initVscode()
+			}
 		}
-		if os.Args[1] == "vscode" {
-			initVscode()
+
+		if os.Args[1] == "dep" {
+			initDep(os.Args[2])
+
 		}
 	}
-
-	initDep()
 }
 
-func initDep() {
+func initDep(moduleName string) {
 
-	cmd := exec.Command(fmt.Sprintf("%s",GetConf().Command))
+	cmd := exec.Command(fmt.Sprintf("%s", GetCommand(moduleName)))
 
 	_, err := cmd.StdoutPipe()
 	if err != nil {

@@ -1,28 +1,15 @@
 package main
 
-import (
-	"io/ioutil"
-	"log"
-	"gopkg.in/yaml.v2"
-	"fmt"
-)
+import "fmt"
 
-type Conf struct {
-	Command string `yaml:"command"`
-}
+func GetCommand(moduleName string) string {
 
-func GetConf() *Conf {
-
-	yamlFile, err := ioutil.ReadFile("conf/conf.yaml")
-	if err != nil {
-		log.Printf("yamlFile.Get err  #%v ", err)
-	}
-
-	var c Conf
-	yaml.Unmarshal(yamlFile, &c)
-	if err != nil {
-		fmt.Printf("Unmarshal: %v", err)
-	}
-
-	return &c
+	return fmt.Sprintf("export http_proxy=192.168.18.80:7777;"+
+		"export https_proxy=192.168.18.80:7777;"+
+		"export GOPATH=`pwd`;"+
+		"export PATH=`pwd`/bin:$PATH;"+
+		"go get -v -u github.com/golang/dep/cmd/dep"+
+		"pushd src/%s;"+
+		"dep init && dep ensure;"+
+		"popd", moduleName)
 }
