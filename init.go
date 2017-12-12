@@ -138,7 +138,6 @@ func initVscode() {
 		// path/to/whatever does exist
 		content, _ := ioutil.ReadFile(".vscode/settings.json")
 		json.Unmarshal(content, &dat)
-		return
 	}
 
 	dir, _ := filepath.Abs(filepath.Dir(os.Args[0]))
