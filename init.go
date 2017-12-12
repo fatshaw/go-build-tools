@@ -11,6 +11,8 @@ import (
 	"os/exec"
 	"io"
 	"text/tabwriter"
+	"bytes"
+	"log"
 )
 
 func main() {
@@ -82,13 +84,28 @@ func usage(w io.Writer, examples [][2] string) {
 
 func initDep(moduleName string) {
 
-	cmd := exec.Command(fmt.Sprintf("%s", GetCommand(moduleName)))
+	cmd := exec.Command("sh", "-c", fmt.Sprintf("%s", GetCommand(moduleName)))
 
 	out, err := cmd.StdoutPipe()
 	if err != nil {
 		fmt.Print(err)
+		return
 	}
-	fmt.Printf("output=%s\n", out)
+
+	err = cmd.Start()
+	if err != nil {
+		fmt.Print(err)
+		return
+	}
+
+	buf := new(bytes.Buffer)
+	buf.ReadFrom(out)
+
+	if err := cmd.Wait(); err != nil {
+		log.Fatal(err)
+	}
+
+	fmt.Printf("output=%s\n", buf.String())
 }
 
 func initIdea() {
