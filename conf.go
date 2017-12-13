@@ -18,7 +18,7 @@ func DepTaskCommand(folderName string) string {
 	return fmt.Sprintf("pushd src/%s;dep init && dep ensure;popd", folderName)
 }
 
-func BuildTask(moduleName string) string {
+func BuildTaskCommand(moduleName string) string {
 	return fmt.Sprintf("go test $(go list %s... | grep -v vendor|tr \"\\n\" \" \");"+
-		"go build -o %s %s/main;echo \"result=\"$?", moduleName, moduleName, moduleName)
+		"go build -o output/%s %s/main;cp -f Dockerfile output/;echo \"result=\"$?", moduleName, moduleName, moduleName)
 }
