@@ -20,7 +20,7 @@ func DockerTask(imageName string) {
 	buildImage(imageName, cli)
 	pushImage(cli, imageName)
 
-	cleanContext()
+	//cleanContext()
 
 }
 
@@ -47,7 +47,7 @@ func pushImage(cli *client.Client, imageName string) {
 func buildImage(imageName string, cli *client.Client) {
 	buildOptions := types.ImageBuildOptions{
 		Tags:           []string{imageName},
-		Dockerfile:     "output/Dockerfile",
+		Dockerfile:     "Dockerfile",
 		SuppressOutput: true,
 		Remove:         true,
 		ForceRemove:    true,

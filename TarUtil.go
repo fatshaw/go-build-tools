@@ -18,18 +18,13 @@ func Tar(source, target string) error {
 	tarball := tar.NewWriter(tarfile)
 	defer tarball.Close()
 
-	info, err := os.Stat(source)
-	if err != nil {
-		return nil
-	}
-
-	var baseDir string
-	if info.IsDir() {
-		baseDir = filepath.Base(source)
-	}
-
 	return filepath.Walk(source,
 		func(path string, info os.FileInfo, err error) error {
+
+			if info.IsDir() {
+				return nil
+			}
+
 			if err != nil {
 				return err
 			}
@@ -37,16 +32,11 @@ func Tar(source, target string) error {
 			if err != nil {
 				return err
 			}
-			if baseDir != "" {
-				header.Name = filepath.Join(baseDir, strings.TrimPrefix(path, source))
-			}
+
+			header.Name = strings.TrimPrefix(strings.TrimPrefix(path, source), "/")
 
 			if err := tarball.WriteHeader(header); err != nil {
 				return err
-			}
-
-			if info.IsDir() {
-				return nil
 			}
 
 			file, err := os.Open(path)
