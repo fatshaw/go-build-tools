@@ -19,7 +19,7 @@ func InitDep() {
 		log.Fatal(err)
 	}
 
-	command := []string{"-c", InitGoEnvironmentCommand(), DownloadDepCommand()}
+	command := fmt.Sprintf("%s;%s", InitGoEnvironmentCommand(), DownloadDepCommand())
 	for _, f := range files {
 		// ignore github.com source folder
 		if strings.Contains(f.Name(), "github.com") {
@@ -27,10 +27,10 @@ func InitDep() {
 		}
 
 		log.Printf("dep for folder = %s\n", f.Name())
-		command = append(command, DepTaskCommand(f.Name()))
+		command = fmt.Sprintf("%s;%s", command, DepTaskCommand(f.Name()))
 	}
 
-	output := RunCommand(fmt.Sprintf("%s", command))
-	log.Printf("depTask=%s\noutput=%s\n", fmt.Sprintf("%s", command), output)
+	output := RunCommand(command)
+	log.Printf("depTask=%s,output=%s\n", command, output)
 
 }

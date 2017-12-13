@@ -6,8 +6,8 @@ import (
 )
 
 func BuildTask(moduleName string) {
-	output := RunCommand(fmt.Sprintf("%s", []string{"-c", InitGoEnvironmentCommand(), BuildTaskCommand(moduleName)}))
+	output := RunCommand(fmt.Sprintf("%s && %s", InitGoEnvironmentCommand(), BuildTaskCommand(moduleName)))
 
-	log.Printf("buildTask=%soutput=%s\n", []string{"-c", InitGoEnvironmentCommand(), BuildTaskCommand(moduleName)}, output)
+	log.Printf("buildTask=%s,output=%s\n", fmt.Sprintf("%s && %s", InitGoEnvironmentCommand(), BuildTaskCommand(moduleName)), output)
 
 }
