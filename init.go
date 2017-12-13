@@ -11,28 +11,43 @@ import (
 	"os/exec"
 	"io"
 	"text/tabwriter"
-	"bytes"
 	"log"
+	"encoding/base64"
+	"github.com/docker/docker/api/types"
+	"github.com/docker/docker/client"
+	"context"
 )
 
 func main() {
 
 	example := [][2]string{
 		{
-			"go-dep-tools setup [modulename]",
+			"go-build-tools setup [modulename]",
 			"set up a new project with name=[modulename]",
 		},
 		{
-			"go-dep-tools init [vscode|idea]",
+			"go-build-tools init [vscode|idea]",
 			"init go environment for vscode or idea",
 		},
 		{
-			"go-dep-tools dep [modulename]",
+			"go-build-tools dep [modulename]",
 			"install the project's dependencies",
+		},
+		{
+			"go-build-tools build [module_name]",
+			"build module",
+		},
+		{
+			"go-build-tools pushImage [module_name]",
+			"build docker image and push",
 		},
 	}
 
-	if len(os.Args) == 3 {
+	if len(os.Args) == 2 && os.Args[1] == "dep" {
+
+		initDep()
+
+	} else if len(os.Args) == 3 {
 
 		if os.Args[1] == "setup" {
 			setup(os.Args[2])
@@ -48,9 +63,14 @@ func main() {
 			}
 		}
 
-		if os.Args[1] == "dep" {
-			initDep(os.Args[2])
+		if os.Args[1] == "build" {
+			buildTask(os.Args[2])
 		}
+
+		if os.Args[1] == "pushImage" {
+			dockerTask(fmt.Sprintf("daocloud.io/baidao/%s:%s", os.Args[2], os.Getenv("CI_BUILD_REF")))
+		}
+
 	} else {
 		usage(os.Stdout, example)
 	}
@@ -82,30 +102,41 @@ func usage(w io.Writer, examples [][2] string) {
 	fmt.Fprintln(w)
 }
 
-func initDep(moduleName string) {
+func initDep() {
 
-	cmd := exec.Command("sh", "-c", fmt.Sprintf("%s", GetCommand(moduleName)))
-
-	out, err := cmd.StdoutPipe()
-	if err != nil {
-		fmt.Print(err)
-		return
+	if _, err := os.Stat("src"); os.IsNotExist(err) {
+		log.Fatal("not src folder")
 	}
 
-	err = cmd.Start()
+	files, err := ioutil.ReadDir("src")
 	if err != nil {
-		fmt.Print(err)
-		return
-	}
-
-	buf := new(bytes.Buffer)
-	buf.ReadFrom(out)
-
-	if err := cmd.Wait(); err != nil {
 		log.Fatal(err)
 	}
 
-	fmt.Printf("output=%s\n", buf.String())
+	command := []string{"-c", InitGoEnvironmentCommand(), DownloadDepCommand()}
+	for _, f := range files {
+		// ignore github.com source folder
+		if strings.Contains(f.Name(), "github.com") {
+			continue
+		}
+
+		log.Printf("dep for folder = %s\n", f.Name())
+		command = append(command, DepTaskCommand(f.Name()))
+	}
+
+	output := runCommand(fmt.Sprintf("%s", command))
+	log.Printf("depTask=%s\noutput=%s\n", fmt.Sprintf("%s", command), output)
+
+}
+
+func runCommand(command string) string {
+	output, err := exec.Command("sh", "-c", command).Output()
+	if err != nil {
+		log.Fatalf("do command %s failed %v", command, err)
+	}
+
+	return string(output)
+
 }
 
 func initIdea() {
@@ -164,4 +195,70 @@ func file2lines(filePath string) []string {
 	}
 
 	return lines
+}
+
+func buildTask(moduleName string) {
+	output := runCommand(fmt.Sprintf("%s", []string{"-c", InitGoEnvironmentCommand(), BuildTask(moduleName)}))
+
+	log.Printf("buildTask=%soutput=%s\n", []string{"-c", InitGoEnvironmentCommand(), BuildTask(moduleName)}, output)
+
+}
+
+func dockerTask(imageName string) {
+
+	defaultHeaders := map[string]string{"User-Agent": "ego-v-0.0.1"}
+	cli, _ := client.NewClient("unix:///var/run/docker.sock", "v1.24", nil, defaultHeaders)
+
+	authConfig := types.AuthConfig{
+		Username:      "developer@baidao.com",
+		Password:      "65T-Tvq-sVc-BDR",
+		ServerAddress: "daocloud.io",
+	}
+	auth, err := cli.RegistryLogin(context.Background(), authConfig)
+
+	if err != nil {
+		panic(err)
+	}
+
+	log.Printf("login response=%s", auth.Status)
+
+	buildOptions := types.ImageBuildOptions{
+		Tags:           []string{imageName},
+		Dockerfile:     "simulator/Dockerfile",
+		SuppressOutput: false,
+		Remove:         true,
+		ForceRemove:    true,
+		PullParent:     true,
+	}
+
+	Tar(GetCurrentDirectory(), "repo.tar")
+	dockerBuildContext, err := os.Open("repo.tar")
+	defer dockerBuildContext.Close()
+
+	if err != nil {
+		log.Fatalf("build context failed:%v", err)
+	}
+
+	buildResponse, err := cli.ImageBuild(context.Background(), dockerBuildContext, buildOptions)
+	if err != nil {
+		log.Fatalf("buildImage=%s failed:%v", imageName, err)
+	}
+
+	defer buildResponse.Body.Close()
+	io.Copy(os.Stdout, buildResponse.Body)
+
+
+	encodedJSON, err := json.Marshal(authConfig)
+	if err != nil {
+		panic(err)
+	}
+	authStr := base64.URLEncoding.EncodeToString(encodedJSON)
+	r, err := cli.ImagePush(context.Background(), imageName, types.ImagePushOptions{RegistryAuth: authStr})
+	if err != nil {
+		panic(err)
+	}
+
+	io.Copy(os.Stdout, r)
+	defer r.Close()
+
 }
