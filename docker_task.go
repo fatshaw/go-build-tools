@@ -14,13 +14,15 @@ import (
 
 func DockerTask(imageName string) {
 
+	log.Printf("docker task for imageName=%s\n", imageName)
+
 	cli := getDockerClient()
 
 	loginDocker(cli)
 	buildImage(imageName, cli)
 	pushImage(cli, imageName)
 
-	//cleanContext()
+	cleanContext()
 
 }
 
