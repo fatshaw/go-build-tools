@@ -11,11 +11,11 @@ func InitGoEnvironmentCommand() string {
 }
 
 func DownloadDepCommand() string {
-	return fmt.Sprint("go get -v -u github.com/golang/dep/cmd/dep")
+	return fmt.Sprint("go get -v -u github.com/golang/dep/cmd/dep;")
 }
 
 func DepTaskCommand(folderName string) string {
-	return fmt.Sprintf("pushd src/%s;dep init && dep ensure;popd", folderName)
+	return fmt.Sprintf("pushd src/%s;dep init && dep ensure;popd;", folderName)
 }
 
 func BuildTaskCommand(moduleName string) string {
