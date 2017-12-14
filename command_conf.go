@@ -15,7 +15,7 @@ func DownloadDepCommand() string {
 }
 
 func DepTaskCommand(folderName string) string {
-	return fmt.Sprintf("pushd src/%s;dep init; echo $?; dep ensure;echo $?;popd", folderName)
+	return fmt.Sprintf("pushd src/%s;dep init;dep ensure;popd", folderName)
 }
 
 func BuildTaskCommand(moduleName string) string {
