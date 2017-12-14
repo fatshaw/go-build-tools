@@ -19,7 +19,7 @@ func InitDep() {
 		log.Fatal(err)
 	}
 
-	command := fmt.Sprintf("%s;%s", InitGoEnvironmentCommand(), DownloadDepCommand())
+	command := fmt.Sprintf("pwd;%s;%s", InitGoEnvironmentCommand(), DownloadDepCommand())
 	for _, f := range files {
 		// ignore github.com source folder
 		if strings.Contains(f.Name(), "github.com") {

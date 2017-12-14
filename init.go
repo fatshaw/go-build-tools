@@ -19,7 +19,7 @@ func main() {
 			"init go environment for vscode or idea",
 		},
 		{
-			"go-build-tools dep [modulename]",
+			"go-build-tools dep",
 			"install the project's dependencies",
 		},
 		{
