@@ -4,9 +4,7 @@ import "fmt"
 
 func InitGoEnvironmentCommand() string {
 
-	return fmt.Sprint("export http_proxy=cow.98.cn:7777;" +
-		"export https_proxy=cow.98.cn:7777;" +
-		"export GOPATH=`pwd`;" +
+	return fmt.Sprint("export GOPATH=`pwd`;" +
 		"export PATH=`pwd`/bin:$PATH")
 }
 
@@ -15,7 +13,7 @@ func DownloadDepCommand() string {
 }
 
 func DepTaskCommand(folderName string) string {
-	return fmt.Sprintf("pushd src/%s;dep init;dep ensure;popd", folderName)
+	return fmt.Sprintf("pushd src/%s;dep ensure;popd", folderName)
 }
 
 func BuildTaskCommand(moduleName string) string {
