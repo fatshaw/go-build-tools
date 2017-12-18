@@ -86,7 +86,7 @@ func loginDocker(cli *client.Client) {
 func getAuthConfig() types.AuthConfig {
 	authConfig := types.AuthConfig{
 		Username:      "developer@baidao.com",
-		Password:      "65T-Tvq-sVc-BDR",
+		Password:      os.Getenv("DOCKER_PASSWORD"),
 		ServerAddress: "daocloud.io",
 	}
 	return authConfig
