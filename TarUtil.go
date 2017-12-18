@@ -6,9 +6,11 @@ import (
 	"os"
 	"io"
 	"archive/tar"
+	"log"
 )
 
 func Tar(source, target string) error {
+	log.Printf("source=%s,target=%s\n", source, target)
 	tarfile, err := os.Create(target)
 	if err != nil {
 		return err

@@ -27,7 +27,9 @@ func DockerTask(imageName string) {
 }
 
 func cleanContext() {
-	defer os.Remove("repo.tar")
+	if err := os.Remove("repo.tar"); err != nil {
+		log.Fatal(err)
+	}
 }
 
 func pushImage(cli *client.Client, imageName string) {

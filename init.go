@@ -96,6 +96,10 @@ func AllInOne() {
 	output := RunCommand(command)
 	log.Printf("AllInOne=%s,output=%s\n", command, output)
 
+	if err := os.Chdir(fmt.Sprintf("/root/go/src/ytx/futures/go/%s", os.Args[2])); err != nil {
+		log.Fatalf("chdir failed:%v", err)
+	}
+
 	DockerTask(fmt.Sprintf("daocloud.io/baidao/%s:%s", os.Args[2], os.Getenv("CI_BUILD_REF")))
 
 }
