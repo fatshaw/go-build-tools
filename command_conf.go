@@ -27,7 +27,7 @@ func BeforeScript() string {
 		"cd $GOPATH/src/ytx/futures/go;" +
 		"rm -fr $CI_PROJECT_NAME;" +
 		"cp -fr /root/$CI_PROJECT_DIR .;" +
-		"cd $CI_PROJECT_NAME" +
+		"cd $CI_PROJECT_NAME;" +
 		"go get -u github.com/golang/dep/cmd/dep;" +
 		"$GOPATH/bin/dep ensure")
 }
