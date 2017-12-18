@@ -32,8 +32,8 @@ func main() {
 			"build docker image and push",
 		},
 		{
-			"go-build-tools beforescript",
-			"do prepare work before build",
+			"go-build-tools allinone [module_name]",
+			"allinone work",
 		},
 	}
 
