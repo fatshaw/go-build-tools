@@ -34,3 +34,10 @@ func InitDep() {
 	log.Printf("depTask=%s,output=%s\n", command, output)
 
 }
+
+func BeforeScriptTask() {
+
+	output := RunCommand(fmt.Sprintf("%s", BeforeScript()))
+	log.Printf("BeforeScriptTask=%s,output=%s\n", fmt.Sprintf("%s", BeforeScript()), output)
+
+}

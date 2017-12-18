@@ -5,6 +5,7 @@ import (
 	"os"
 	"io"
 	"text/tabwriter"
+	"log"
 )
 
 func main() {
@@ -29,6 +30,10 @@ func main() {
 		{
 			"go-build-tools pushImage [module_name]",
 			"build docker image and push",
+		},
+		{
+			"go-build-tools beforescript",
+			"do prepare work before build",
 		},
 	}
 
@@ -60,6 +65,10 @@ func main() {
 			DockerTask(fmt.Sprintf("daocloud.io/baidao/%s:%s", os.Args[2], os.Getenv("CI_BUILD_REF")))
 		}
 
+		if os.Args[1] == "allinone" {
+			AllInOne()
+		}
+
 	} else {
 		usage(os.Stdout, example)
 	}
@@ -79,4 +88,14 @@ func usage(w io.Writer, examples [][2] string) {
 	}
 	tw.Flush()
 	fmt.Fprintln(w)
+}
+
+func AllInOne() {
+
+	command := fmt.Sprintf("%s;%s", BeforeScript(), BuildTaskCommand(os.Args[2]))
+	output := RunCommand(command)
+	log.Printf("AllInOne=%s,output=%s\n", command, output)
+
+	DockerTask(fmt.Sprintf("daocloud.io/baidao/%s:%s", os.Args[2], os.Getenv("CI_BUILD_REF")))
+
 }
