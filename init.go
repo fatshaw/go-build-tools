@@ -5,7 +5,6 @@ import (
 	"os"
 	"io"
 	"text/tabwriter"
-	"log"
 )
 
 func main() {
