@@ -89,17 +89,3 @@ func usage(w io.Writer, examples [][2] string) {
 	tw.Flush()
 	fmt.Fprintln(w)
 }
-
-func AllInOne() {
-
-	command := fmt.Sprintf("%s;%s", BeforeScript(), BuildTaskCommand(os.Args[2]))
-	output := RunCommand(command)
-	log.Printf("AllInOne=%s,output=%s\n", command, output)
-
-	if err := os.Chdir(fmt.Sprintf("/root/go/src/ytx/futures/go/%s", os.Args[2])); err != nil {
-		log.Fatalf("chdir failed:%v", err)
-	}
-
-	DockerTask(fmt.Sprintf("daocloud.io/baidao/%s:%s", os.Args[2], os.Getenv("CI_BUILD_REF")))
-
-}
